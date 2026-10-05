@@ -42,10 +42,40 @@ class TestGetHeading(unittest.TestCase):
             </body>
         </html>
         """
-        actual = "Welcome to Boot.dev"
-        expected = get_heading_from_html(html_page)
+        actual = get_heading_from_html(html_page)
+        expected = "Welcome to Boot.dev"
         self.assertEqual(actual, expected)
-        
+    
+    def test_get_h2_heading_from_html(self):
+        html_page = """
+       <html>
+            <body>
+                <h2>Welcome to Boot.dev</h2>
+                <main>
+                <p>Learn to code by building real projects.</p>
+                <p>This is the second paragraph.</p>
+                </main>
+            </body>
+        </html> 
+        """
+        actual = get_heading_from_html(html_page)
+        expected = "Welcome to Boot.dev"
+        self.assertEqual(actual, expected)
+    
+    def test_no_heading_from_html(self):
+        html_page = """
+        <html>
+            <body>
+                <main>
+                <p>Learn to code by building real projects.</p>
+                <p>This is the second paragraph.</p>
+                </main>
+            </body>
+        </html>
+        """
+        actual = get_heading_from_html(html_page)
+        expected = ""
+        self.assertEqual(actual, expected)
 
 
 if __name__ == "__main__":
