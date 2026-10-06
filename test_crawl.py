@@ -1,6 +1,10 @@
 import unittest
 
-from crawl import get_heading_from_html, normalize_url
+from crawl import (
+    get_first_paragraph_from_html,
+    get_heading_from_html,
+    normalize_url,
+)
 
 
 class TestNormalize(unittest.TestCase):
@@ -74,6 +78,31 @@ class TestGetHeading(unittest.TestCase):
         </html>
         """
         actual = get_heading_from_html(html_page)
+        expected = ""
+        self.assertEqual(actual, expected)
+
+
+class TestGetFirstParagraph(unittest.TestCase):
+    def test_get_first_paragraph_from_html_basic(self) -> None:
+        input_body = "<html><body><p>This is the first paragraph.</p></body></html>"
+        actual = get_first_paragraph_from_html(input_body)
+        expected = "This is the first paragraph."
+        self.assertEqual(actual, expected)
+
+    def test_get_first_paragraph_from_html_main_priority(self) -> None:
+        input_body = """<html><body>
+            <p>Outside paragraph.</p>
+            <main>
+                <p>Main paragraph.</p>
+            </main>
+        </body></html>"""
+        actual = get_first_paragraph_from_html(input_body)
+        expected = "Main paragraph."
+        self.assertEqual(actual, expected)
+
+    def test_get_first_paragraph_from_html_no_paragraph(self) -> None:
+        input_body = "<html><body><h1>No paragraphs here</h1></body></html>"
+        actual = get_first_paragraph_from_html(input_body)
         expected = ""
         self.assertEqual(actual, expected)
 
