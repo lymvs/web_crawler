@@ -3,6 +3,7 @@ import unittest
 from crawl import (
     get_first_paragraph_from_html,
     get_heading_from_html,
+    get_urls_from_html,
     normalize_url,
 )
 
@@ -104,6 +105,29 @@ class TestGetFirstParagraph(unittest.TestCase):
         input_body = "<html><body><h1>No paragraphs here</h1></body></html>"
         actual = get_first_paragraph_from_html(input_body)
         expected = ""
+        self.assertEqual(actual, expected)
+
+
+class TestGetUrls(unittest.TestCase):
+    def test_get_urls_from_html_absolute(self):
+        input_url = "https://crawler-test.com"
+        input_body = '<html><body><a href="https://crawler-test.com"><span>Boot.dev</span></a></body></html>'
+        actual = get_urls_from_html(input_body, input_url)
+        expected = ["https://crawler-test.com"]
+        self.assertEqual(actual, expected)
+    
+    def test_get_urls_from_html_relative(self):
+        input_url = "https://crawler-test.com"
+        input_body = '<html><body><a href="/path_test"><span>Boot.dev</span></a></body></html>'
+        actual = get_urls_from_html(input_body, input_url)
+        expected = ["https://crawler-test.com/path_test"]
+        self.assertEqual(actual, expected)
+    
+    def test_get_urls_from_html_multiple_urls(self):
+        input_url = "https://crawler-test.com"
+        input_body = '<html><body><a href="https://crawler-test.com"><span>Boot.dev</span></a><a href="/path_test"><span>relative bootdev</span></a></body></html>'
+        actual = get_urls_from_html(input_body, input_url)
+        expected = ["https://crawler-test.com", "https://crawler-test.com/path_test"]
         self.assertEqual(actual, expected)
 
 
