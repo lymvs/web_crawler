@@ -3,6 +3,7 @@ import unittest
 from crawl import (
     get_first_paragraph_from_html,
     get_heading_from_html,
+    get_images_from_html,
     get_urls_from_html,
     normalize_url,
 )
@@ -109,27 +110,54 @@ class TestGetFirstParagraph(unittest.TestCase):
 
 
 class TestGetUrls(unittest.TestCase):
-    def test_get_urls_from_html_absolute(self):
+    def test_get_urls_from_html_absolute(self) -> None:
         input_url = "https://crawler-test.com"
         input_body = '<html><body><a href="https://crawler-test.com"><span>Boot.dev</span></a></body></html>'
         actual = get_urls_from_html(input_body, input_url)
         expected = ["https://crawler-test.com"]
         self.assertEqual(actual, expected)
-    
-    def test_get_urls_from_html_relative(self):
+
+    def test_get_urls_from_html_relative(self) -> None:
         input_url = "https://crawler-test.com"
-        input_body = '<html><body><a href="/path_test"><span>Boot.dev</span></a></body></html>'
+        input_body = (
+            '<html><body><a href="/path/one"><span>Boot.dev</span></a></body></html>'
+        )
         actual = get_urls_from_html(input_body, input_url)
-        expected = ["https://crawler-test.com/path_test"]
-        self.assertEqual(actual, expected)
-    
-    def test_get_urls_from_html_multiple_urls(self):
-        input_url = "https://crawler-test.com"
-        input_body = '<html><body><a href="https://crawler-test.com"><span>Boot.dev</span></a><a href="/path_test"><span>relative bootdev</span></a></body></html>'
-        actual = get_urls_from_html(input_body, input_url)
-        expected = ["https://crawler-test.com", "https://crawler-test.com/path_test"]
+        expected = ["https://crawler-test.com/path/one"]
         self.assertEqual(actual, expected)
 
+    def test_get_urls_from_html_both(self) -> None:
+        input_url = "https://crawler-test.com"
+        input_body = '<html><body><a href="/path/one"><span>Boot.dev</span></a><a href="https://other.com/path/one"><span>Boot.dev</span></a></body></html>'
+        actual = get_urls_from_html(input_body, input_url)
+        expected = ["https://crawler-test.com/path/one", "https://other.com/path/one"]
+        self.assertEqual(actual, expected)
+
+
+class TestGetImages(unittest.TestCase):
+    def test_get_images_from_html_absolute(self) -> None:
+        input_url = "https://crawler-test.com"
+        input_body = '<html><body><img src="https://crawler-test.com/logo.png" alt="Logo"></body></html>'
+        actual = get_images_from_html(input_body, input_url)
+        expected = ["https://crawler-test.com/logo.png"]
+        self.assertEqual(actual, expected)
+
+    def test_get_images_from_html_relative(self) -> None:
+        input_url = "https://crawler-test.com"
+        input_body = '<html><body><img src="/logo.png" alt="Logo"></body></html>'
+        actual = get_images_from_html(input_body, input_url)
+        expected = ["https://crawler-test.com/logo.png"]
+        self.assertEqual(actual, expected)
+
+    def test_get_images_from_html_multiple(self) -> None:
+        input_url = "https://crawler-test.com"
+        input_body = '<html><body><img src="/logo.png" alt="Logo"><img src="https://cdn.boot.dev/banner.jpg"></body></html>'
+        actual = get_images_from_html(input_body, input_url)
+        expected = [
+            "https://crawler-test.com/logo.png",
+            "https://cdn.boot.dev/banner.jpg",
+        ]
+        self.assertEqual(actual, expected)
 
 if __name__ == "__main__":
     unittest.main()
