@@ -1,6 +1,7 @@
 from typing import TypedDict
 from urllib.parse import urljoin, urlsplit
 
+import requests
 from bs4 import BeautifulSoup, Tag
 
 
@@ -83,3 +84,16 @@ def extract_page_data(html: str, page_url: str) -> PageData:
         "outgoing_links": get_urls_from_html(html, page_url),
         "image_urls": get_images_from_html(html, page_url),
     }
+
+
+def get_html(url: str) -> str:
+    try:
+        response = requests.get(url, headers={"User-Agent": "BootCrawler/1.0"})
+    except Exception as e:
+        raise Exception(f"network error while fetching {url}: {e}")
+    if response.status_code >= 400 and response.status_code < 500:
+        raise Exception("status code 400+") 
+    if "text/html" not in response.headers.get("Content-Type"):
+        raise Exception("content type not text/html")
+
+    return response.text
